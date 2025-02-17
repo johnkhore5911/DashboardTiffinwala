@@ -193,7 +193,7 @@ function Login() {
 
         if (response.data.success) {
           toast.success("Login successful!");  // Show success toast
-          navigate("/dashboard");
+          navigate("/admin/dashboard");
         } else {
           toast.error("Invalid credentials. Please try again.");  // Show error toast
         }
