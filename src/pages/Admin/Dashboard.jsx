@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-
 import totalUser from '../../assets/totaluser.png'
 import planUser from '../../assets/planuser.png'
 import silveruser from '../../assets/silveruser.png'
 import platinum from '../../assets/platinum.png'
-
+import api from '../../services/api';
 import DeleteIcon from '@mui/icons-material/Delete';
+import axios from "axios";
 
 const Card = ({ children, className }) => (
   <div className={`shadow-lg rounded-lg p-6 ${className} transition-transform duration-300 transform hover:translate-y-[-10px] cursor-pointer`}>
@@ -30,17 +30,11 @@ const Button = ({ children, className, disabled }) => (
 );
 
 const images = [totalUser, planUser, silveruser, platinum];
-
+const lowerStatsImages = [planUser, silveruser, platinum];
+const lowerStatsColor = ["bg-red-100", "bg-blue-100","bg-green-100"];
 const Dashboard = () => {
   const [selectedMonth, setSelectedMonth] = useState("July");
-
-  const stats = [
-    { title: "Total Customers", value: 84, change: "+12%", color: "bg-blue-100", index: 1 },
-    { title: "Total gold plan users", value: 25, change: "-5%", color: "bg-red-100", index: 2 },
-    { title: "Total Silver Plan users", value: 37, change: "+8%", color: "bg-blue-100", index: 3 },
-    { title: "Total Platinum plan users", value: 22, change: "+5%", color: "bg-green-100", index: 4 },
-  ];
-
+  
   const mealData = [
     { week: "1 Week", dineIn: 30, tiffin: 10 },
     { week: "2 Week", dineIn: 60, tiffin: 50 },
@@ -49,31 +43,80 @@ const Dashboard = () => {
     { week: "5 Week", dineIn: 70, tiffin: 50 },
   ];
 
-  const deliveryPartners = [
-    { name: "Admin Name", location: "ABC road, Pune", status: "Available" },
-    { name: "Admin Name", location: "ABC road, Pune", status: "Unavailable" },
-    { name: "Admin Name", location: "ABC road, Pune", status: "Unavailable" },
-    { name: "Admin Name", location: "ABC road, Pune", status: "Available" },
-  ];
+  const [data, setData] = useState([]);
+  const [deliveryPartners, setDeliveryPartners] = useState([]);
+  const [upperStats, setUpperStats] = useState([{
+    "title": "Loading...",
+    "value": 0
+}]);
+  const [lowerStats, setLowerStats] = useState([]);
 
-  const planUsers = [
-    { id: 1, name: "John Khore", contact: "8966543246", plan: "Platinum Plan", date: "18/12/2024 12:00 PM", expiry: "Next 10 days", alert: "Notify" },
-    { id: 2, name: "Lakhan", contact: "8966543246", plan: "Gold Plan", date: "10/12/2024 10:50 AM", expiry: "10/01/2025", alert: "Notify" },
-    { id: 3, name: "Aakarsh", contact: "8966543246", plan: "Gold Plan", date: "10/12/2024 10:50 AM", expiry: "10/01/2025", alert: "Notify" },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get("/userRoutes/DashboardController");
+        console.log("Data fetched:", response.data);
+        setData(response.data);
+        setDeliveryPartners(response.data.DeliveryPartners);
+
+        setUpperStats([{ title: "Total Customers", value: response.data.totalCustomer }]);
+        const lowerStatsArray = Object.entries(response.data.lowerStats).map(([key, value], index) => ({
+          title: key,
+          value: value.totalCustomers,
+          color: lowerStatsColor[index % lowerStatsColor.length] // Assign color from predefined array
+        }));
+        setLowerStats(lowerStatsArray);
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+    const intervalId = setInterval(fetchData, 5000);
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
+  }, []);
+
+  const notifyUser = async (fcmtoken) => {
+    console.log("fcmtoken",fcmtoken)
+    try {
+      const response = await axios.post(
+        'https://tiffin-wala-backend.vercel.app/send-notification-to-user',
+        { message:"Meal Plan Credit running Low, Kindly renew you Plan!",fcmToken:fcmtoken },
+      );
+      alert('Notification sent successfully!');
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  }
+
+  console.log("Upper Stats: ",upperStats);
+  console.log("Lower Stats: ",lowerStats);
+
 
   return (
     <div className="p-6 space-y-6 bg-white-100">
-      <div className="grid grid-cols-4 gap-4 mt-3">
-        {stats.map((stat, index) => (
-          <Card key={index} className={`p-4 rounded-xl ${stat.color}`}>
+
+    <div className="w-full overflow-x-auto scrollbar-hide">
+      <div className="flex gap-4 whitespace-nowrap flex-wrap pt-3 pb-2">
+        {upperStats.map((stat, index) => (
+          <Card key={index} className={`p-4 rounded-xl bg-blue-100 min-w-[350px]`}>
             <img src={images[index % images.length]} alt={stat.title} />
             <h3 className="text-lg font-semibold">{stat.title}</h3>
             <p className="text-3xl font-bold">{stat.value}</p>
-            <span className="text-sm">{stat.change} Than last month</span>
+            <span className="text-sm">12% Than last month</span>
+          </Card>
+        ))}
+
+        {lowerStats.map((stat, index) => (
+          <Card key={index} className={`p-4 rounded-xl ${lowerStatsColor[index % lowerStats.length]} || "bg-gray-100"} min-w-[350px]`}>
+            <img src={lowerStatsImages[index % lowerStats.length]} alt={stat.title} />
+            <h3 className="text-lg font-semibold">{stat.title}</h3>
+            <p className="text-3xl font-bold">{stat.value}</p>
+            <span className="text-sm">12% Than last month</span>
           </Card>
         ))}
       </div>
+    </div>
 
       <div className="grid grid-cols-3 gap-6">
         <CardNormal className="col-span-2 p-4 border-[1px] border-gray-300">
@@ -90,83 +133,51 @@ const Dashboard = () => {
             </select>
           </div>
           <ResponsiveContainer width="100%" height={300}>
-  <BarChart data={mealData} barGap={6}>
-    <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" />
-    <XAxis dataKey="week" tick={{ fill: "#555" }} />
-    <YAxis tick={{ fill: "#555" }} domain={[0, 100]} />
-    <Tooltip />
-    <Legend
-      align="left"
-      verticalAlign="top"
-      wrapperStyle={{ marginBottom: '20px' }} 
-      itemStyle={{ marginBottom: '10px' }} 
-      itemGap={10} 
-    />
-    <Bar
-      dataKey="dineIn"
-      fill="#e74c3c"
-      radius={[5, 5, 0, 0]}
-      barSize={20}
-    />
-    <Bar
-      dataKey="tiffin"
-      fill="#3498db"
-      radius={[5, 5, 0, 0]}
-      barSize={20}
-    />
-  </BarChart>
-</ResponsiveContainer>
+            <BarChart data={mealData} barGap={6}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" />
+              <XAxis dataKey="week" tick={{ fill: "#555" }} />
+              <YAxis tick={{ fill: "#555" }} domain={[0, 100]} />
+              <Tooltip />
+              <Legend
+                align="left"
+                verticalAlign="top"
+                wrapperStyle={{ marginBottom: '20px' }} 
+                itemStyle={{ marginBottom: '10px' }} 
+                itemGap={10} 
+              />
+              <Bar
+                dataKey="dineIn"
+                fill="#e74c3c"
+                radius={[5, 5, 0, 0]}
+                barSize={20}
+              />
+              <Bar
+                dataKey="tiffin"
+                fill="#3498db"
+                radius={[5, 5, 0, 0]}
+                barSize={20}
+              />
+            </BarChart>
+          </ResponsiveContainer>
 
 
         </CardNormal>
 
-        <CardNormal className="p-4 border-[1px] border-gray-300 bg-[#F9F9F9]">
-          <h3 className="text-xl font-semibold mb-4">Delivery Partner Data</h3>
-          {deliveryPartners.map((partner, index) => (
-            <div key={index} className="flex justify-between items-center p-2 bg-white rounded-md mb-2">
-              <div>
-                <p className="font-semibold">{partner.name}</p>
-                <p className="text-sm text-gray-500">{partner.location}</p>
-              </div>
-              <Button className={partner.status === "Available" ? "bg-blue-500" : "bg-gray-300"}>{partner.status}</Button>
+        <CardNormal className="p-4 border-[1px] border-gray-300 bg-[#F9F9F9] h-102 overflow-y-auto [&::-webkit-scrollbar]:hidden">
+        <h3 className="text-xl font-semibold mb-4">Delivery Partner Data</h3>
+        {deliveryPartners.map((partner, index) => (
+          <div key={index} className="flex justify-between items-center p-2 bg-white rounded-md mb-2">
+            <div>
+              <p className="font-semibold">{partner.name}</p>
+              <p className="text-sm text-gray-500">{partner.address}</p>
             </div>
-          ))}
-        </CardNormal>
+            <Button className={partner.status === "Available" ? "bg-gray-300" : "bg-blue-500"}>
+              Available
+            </Button>
+          </div>
+        ))}
+      </CardNormal>
       </div>
-{/* 
-      <CardNormal className="p-4 border-[1px] border-gray-300 bg-[#F9F9F9]">
-        <h3 className="text-lg font-semibold">Plan Purchased Users</h3>
-        <table className="w-full text-left">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="p-2">Sr no</th>
-              <th>Name</th>
-              <th>Contact No</th>
-              <th>Purchased Plan</th>
-              <th>Date and Time</th>
-              <th>Plan Expiry</th>
-              <th>Plan Alert</th>
-            </tr>
-          </thead>
-          <tbody>
-            {planUsers.map((user) => (
-              <tr key={user.id} className="border-t">
-                <td className="p-2">{user.id}</td>
-                <td>{user.name}</td>
-                <td>{user.contact}</td>
-                <td>{user.plan}</td>
-                <td>{user.date}</td>
-                <td>{user.expiry}</td>
-                <td>
-                  <Button className={user.alert === "Notify" ? "bg-blue-500" : "bg-gray-300"}>{user.alert}</Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </CardNormal> */}
-
-
 
       <div className="flex-grow bg-[#F9F9F9] border rounded-md border-gray-300 p-5">
       <h3 className="text-lg font-semibold text-gray-700">Plan Purchased Users</h3>
@@ -183,24 +194,28 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {planUsers.map((user, index) => (
+          {data.PlanPurchasedUser && data.PlanPurchasedUser.length > 0 ? (
+            data.PlanPurchasedUser.map((user, index) => (
               <tr key={index} className="border-b border-gray-300 text-center text-gray-500">
-                <td className="p-2">{user.id}</td>
+                <td className="p-2">{index + 1}</td>
                 <td className="p-2">{user.name}</td>
                 <td>{user.contact}</td>
-                <td>{user.plan}</td>
-                <td>{user.date}</td>
-                <td>{user.expiry}</td>
-                <td><Button
-                    variant="outlined"
-                    color="error"
-                    startIcon={<DeleteIcon />}
-                    onClick={() => handleDelete(user)}
-                  >
-                    Notify
-                  </Button></td>
+                <td>{user.Plan}</td>
+                <td>{user.Date}</td>
+                <td>{user.Expiry}</td>
+                <td>
+                  <button className="bg-blue-500 px-4 cursor-pointer text-white py-1 rounded-md" onClick={()=>notifyUser(user.fcmtoken)}>
+                  Notify
+                  </button>
+                </td>
               </tr>
-            ))}
+            ))
+          ) : (
+            <tr>
+              <td colSpan="7">No users found.</td>
+            </tr>
+          )}
+
           </tbody>
         </table>
       </div>

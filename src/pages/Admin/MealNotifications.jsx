@@ -1,30 +1,55 @@
-import React from "react";
+import React,{useState} from "react";
 import bellIcon from '../../assets/notifications_unread.png'
-
+import axios from "axios";
+import api from '../../services/api';
 const DailyMenu = () => {
   const mealHistory = [
-    {
-      mealType: "Lunch",
-      date: "11/02/2025",
-      rotiType: "Gehu, Jawar, Bajra",
-      sabjiType: "Pithla, Bharit, Soyabin, Methi",
-      dalRice: "Dal Tadka, Jeera rice, Masala rice",
-    },
-    {
-      mealType: "Lunch",
-      date: "11/02/2025",
-      rotiType: "Gehu, Jawar, Bajra",
-      sabjiType: "Pithla, Bharit, Soyabin, Methi",
-      dalRice: "Dal Tadka, Jeera rice, Masala rice",
-    },
-    {
-      mealType: "Dinner",
-      date: "11/02/2025",
-      rotiType: "Gehu, Jawar, Bajra",
-      sabjiType: "Pithla, Bharit, Soyabin, Methi",
-      dalRice: "Dal Tadka, Jeera rice, Masala rice",
-    },
+    // {
+    //   mealType: "Lunch",
+    //   date: "11/02/2025",
+    //   rotiType: "Gehu, Jawar, Bajra",
+    //   sabjiType: "Pithla, Bharit, Soyabin, Methi",
+    //   dalRice: "Dal Tadka, Jeera rice, Masala rice",
+    // },
+    // {
+    //   mealType: "Lunch",
+    //   date: "11/02/2025",
+    //   rotiType: "Gehu, Jawar, Bajra",
+    //   sabjiType: "Pithla, Bharit, Soyabin, Methi",
+    //   dalRice: "Dal Tadka, Jeera rice, Masala rice",
+    // },
+    // {
+    //   mealType: "Dinner",
+    //   date: "11/02/2025",
+    //   rotiType: "Gehu, Jawar, Bajra",
+    //   sabjiType: "Pithla, Bharit, Soyabin, Methi",
+    //   dalRice: "Dal Tadka, Jeera rice, Masala rice",
+    // },
   ];
+  const [message, setMessage] = useState("");
+
+  const sendNotiication = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("No authentication token found! Login again!");
+        return;
+      }
+      console.log("")
+
+      const response = await api.post(
+        'https://tiffin-wala-backend.vercel.app/send-meal-notification',
+        { message },
+      );
+      alert('Notification sent successfully!');
+
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      setNotificationStatus('Failed to send notification. Please try again.');
+      alert('Error Sending Notification!');
+    }
+  };
 
   return (
     <div className="min-h-[calc(100vh-70px)] bg-white pl-4">
@@ -56,16 +81,26 @@ const DailyMenu = () => {
             </label>
             <textarea
               placeholder="Add Meal Menu"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
               className="w-full h-36 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none p-3 pt-6 text-gray-700"
             ></textarea>
           </div>
-          <button className="px-12 mt-3 py-2 bg-blue-600 text-white rounded-md cursor-pointer">Notify User</button>
+          <button className="px-12 mt-3 py-2 bg-blue-600 text-white rounded-md cursor-pointer" onClick={(e)=>sendNotiication(e)} >Notify User</button>
         </div>
 
         {/* Meal History */}
-        <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">
+        {
+          mealHistory.length ?
+          <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">
           Meal History
-        </h2>
+        </h2> : (
+          <></>
+        )
+        }
+        {/* <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">
+          Meal History
+        </h2> */}
 
         {/* <div className="space-y-4">
           {mealHistory.map((plan, index) => (

@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
-  const location = useLocation(); // Get current URL path
+  const location = useLocation();
 
   const menuItems = [
     { path: "/admin/dashboard", label: "Dashboard", icon: "🏠" },
@@ -16,7 +16,8 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="w-64 h-screen bg-[#171037] text-white p-2 pt-18 rounded-tr-lg rounded-br-lg">
+    // <div className="w-64 h-screen bg-[#171037] text-white p-2 pt-18 rounded-tr-lg rounded-br-lg">
+    <div className="w-[250px] h-[200vh] bg-[#171037] text-white p-5 pt-18 shadow-lg rounded-tr-lg rounded-br-lg overflow-y-auto">
       <ul className="space-y-2">
         {menuItems.map((item) => (
           <li key={item.path}>

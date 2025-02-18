@@ -13,6 +13,7 @@ import Register from "./pages/Auth/Register.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import "./App.css";
+import { useState } from "react";
 
 function Layout() {
   const location = useLocation();
