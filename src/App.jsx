@@ -12,6 +12,8 @@ import Login from "./pages/Auth/Login.jsx";
 import Register from "./pages/Auth/Register.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Sidebar from "./components/Sidebar.jsx";
+import { Provider } from 'react-redux';
+import { store } from './store/store.js';
 import "./App.css";
 import { useState } from "react";
 

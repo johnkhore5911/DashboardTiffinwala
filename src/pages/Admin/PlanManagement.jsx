@@ -7,6 +7,7 @@ const PlanManagement = () => {
   const MealPlanModal = ({ isOpen, onClose }) => {
     const [mealPlan, setMealPlan] = useState({
       name: "",
+      type:"",
       description: "",
       credits: "",
       price: "",
@@ -58,6 +59,8 @@ const PlanManagement = () => {
             <h2 className="text-xl font-semibold text-gray-700">Add New Meal Plan</h2>
             <button onClick={onClose} className="text-gray-500 text-3xl cursor-pointer">&times;</button>
           </div>
+
+
   
           <div className="space-y-4">
             <div>
@@ -69,17 +72,32 @@ const PlanManagement = () => {
                   className="w-full border border-gray-400 rounded-md p-3  text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-500"
                   // value={mealPlanType}
                   // value={mealPlan.name}
-                  value={mealPlan.name}
+                  value={mealPlan.type}
                   // onChange={(e) => setMealPlanType(e.target.value)}
                   // onChange={(e) => setMealPlan({ ...mealPlan, name: e.target.value })}
-                  onChange={(e) => setMealPlan({ ...mealPlan, name: e.target.value })}
+                  onChange={(e) => setMealPlan({ ...mealPlan, type: e.target.value })}
                 >
                   <option value="">Select preference</option>
                   <option value="QR">QR</option>
-                  <option value="Tiffin">Tiffin System</option>
+                  <option value="Tiffin System">Tiffin System</option>
                 </select>
               </div>
-            </div>
+
+              <div className="mb-6">
+                <div className="relative w-full">
+                  <label className="absolute -top-2 left-3 bg-white px-1 text-gray-600 text-sm">
+                    Name:
+                  </label>
+                  <input
+                    // type="number"
+                    className="w-full border border-gray-400 rounded-md p-2 pt-4 text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                    placeholder="Enter Plan Name"
+                    value={mealPlan.name}
+                    onChange={(e) => setMealPlan({ ...mealPlan, name: e.target.value })}
+                  />
+                </div>
+              </div>
+          </div>
   
             <div className="relative w-full">
                <label className="absolute -top-2 left-3 bg-white px-1 text-gray-600 text-sm">
@@ -114,7 +132,6 @@ const PlanManagement = () => {
               // onChange={(e) => setMealPlan({ ...mealPlan, credits: Number(e.target.value) })}
               value={mealPlan.credits}
               onChange={(e) => setMealPlan({ ...mealPlan, credits: Number(e.target.value) })}
-
             />
           </div>
 
@@ -266,7 +283,7 @@ const PlanManagement = () => {
               className="flex justify-between items-center bg-[#F8F8F8] border border-[#CDCDCD] p-4 rounded-lg"
             >
               <div className="text-lg text-gray-600 font-bold w-[150px]">
-                  {plan.name}
+                  {plan.name} ({plan.type})
               </div>
 
               <div className="w-[800px]">
