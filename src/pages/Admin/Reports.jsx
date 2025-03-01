@@ -89,9 +89,9 @@ const Reports = () => {
           <thead>
             <tr className="border-b border-gray-300">
               <th className="p-2 text-gray-600 font-semibold">Customer Name</th>
-              <th className="text-gray-600 font-semibold">Customer Email</th>
+              <th className="text-gray-600 font-semibold">Customer Contact</th>
               <th className="text-gray-600 font-semibold">Delivery Person</th>
-              <th className="text-gray-600 font-semibold">Delivery Person Email</th>
+              <th className="text-gray-600 font-semibold">Delivery Person Contact</th>
               <th className="text-gray-600 font-semibold">Status</th>
               <th className="text-gray-600 font-semibold">Collection Status</th>
               <th className="text-gray-600 font-semibold">Date</th>
@@ -102,9 +102,9 @@ const Reports = () => {
             {currentUsers.map((user, index) => (
               <tr key={index} className="border-b border-gray-300 text-center text-gray-500">
                 <td className="p-2">{user.customer?.name}</td>
-                <td>{user.customer?.email}</td>
+                <td>{user.customer?.contact}</td>
                 <td>{user.deliveryPerson?.name}</td>
-                <td>{user.deliveryPerson?.email}</td>
+                <td>{user.deliveryPerson?.contact}</td>
                 <td>{user.status}</td>
                 <td>{user.collectionStatus}</td>
                 <td>{user.date}</td>
